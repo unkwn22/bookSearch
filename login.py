@@ -26,7 +26,7 @@ def check_id():
 
 
     if user is not None:
-        if pass_receive is not
+        # if pass_receive is not
     else:
         print("없는 아이디입니다")
 
