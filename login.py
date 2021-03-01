@@ -18,7 +18,7 @@ db = client.accountdata
 def main_page():
     return render_template('login.html')
 
-#함수
+#함수 입니다
 @app.route('/login', methods=['POST'])
 def login():
     id_receive = request.form['id_give']
