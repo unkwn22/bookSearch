@@ -1,0 +1,5 @@
+.idea
+static
+venv
+.gitignore.swp
+.gitignore
