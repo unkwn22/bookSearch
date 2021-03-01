@@ -4,11 +4,7 @@ app = Flask(__name__)
 
 from pymongo import MongoClient
 
-<<<<<<< HEAD
-import bcrypt
-=======
 # import bcrypt
->>>>>>> bf72811e08d836cf94cae73c6811e28c97f7b2de
 
 client = MongoClient('localhost', 27017)
 db = client.accountdata
@@ -22,12 +18,7 @@ db = client.accountdata
 def main_page():
     return render_template('login.html')
 
-<<<<<<< HEAD
-#함수 입니다
-=======
 
-#함수
->>>>>>> bf72811e08d836cf94cae73c6811e28c97f7b2de
 @app.route('/login', methods=['POST'])
 def login():
     id_receive = request.form['id_give']
@@ -45,9 +36,5 @@ def login():
         print("Invalid Username")
         return jsonify({'check': 2})
 
-<<<<<<< HEAD
-=======
-
->>>>>>> bf72811e08d836cf94cae73c6811e28c97f7b2de
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5000, debug=True)
