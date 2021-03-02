@@ -97,7 +97,7 @@
             if(count == 3){
                 $.ajax({
                 type: "POST",
-                url: "/signup",
+                url: "/api/signup",
                 data: {name_give: name, id_give: idCheck, pass_give: pass},
                 success: function (response) {
                     let returnCheck = response['check']
