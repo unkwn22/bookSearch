@@ -12,27 +12,57 @@ db = client.accountdata
 
 
 # HTML 화면 보여주기
-@app.route('/login')
-def ren_main():
-    return render_template('login.html')
+@app.route("/login")
+def home():
+    if "user" in session:
+        return redirect(url_for("user"))
 
+    return render_template("login.html")
 
-@app.route('/login', methods=['POST'])
+@app.route("/login", methods=["POST"])
 def login():
-    id_receive = request.form['id_give']
-    pass_receive = request.form['pass_give'].encode('utf-8')
-    existing_user = db.users.find_one({'id': id_receive})
+    if request.method == "POST":
+        id_receive = request.form["username"]
+        pass_receive = request.form["pass"]
+        existing_user = db.users.find_one({'id': id_receive})
 
-    if existing_user is not None:
-        # password = existing_user['pass']
-        if pass_receive == existing_user['pass']:
-            session["user"] = id_receive
-            # return jsonify({'check': 1})
-            return redirect(url_for("user"))
+        if existing_user is not None:
+            if pass_receive == existing_user['pass']:
+                session["user"] = id_receive
+                print("login success")
+                return redirect(url_for("user"))
+            else:
+                print("invalid password")
+                return jsonify({'msg': '비밀번호가 일치하지 않습니다'})
         else:
-            return jsonify({'check': 3})
+            print("invalid username")
+            return render_template("login.html")
     else:
-        return jsonify({'check': 2})
+        if "user" in session:
+            return redirect(url_for("user"))
+
+
+@app.route("/user")
+def user():
+    if "user" in session:
+        username = session["user"]
+        return render_template("example.html", data=username)
+    else:
+        return redirect(url_for("login"))
+
+
+@app.route("/logout")
+def logout():
+    session.pop("user", None)
+    return redirect(url_for("login"))
+
+
+@app.route("/example")
+def ren_ex():
+    # if user in session:
+    #     return
+
+    return render_template("example.html")
 
 
 @app.route('/signup')
@@ -45,7 +75,8 @@ def signup():
     if request.method == 'POST':
         name_receive = request.form['name_give']
         id_receive = request.form['id_give']
-        pass_receive = request.form['pass_give'].encode('utf-8')
+        pass_receive = request.form['pass_give']
+        # pass_receive = request.form['pass_give'].encode('utf-8')
         existing_user = db.users.find_one({'id': id_receive})
 
         if existing_user is not None:
@@ -59,16 +90,6 @@ def signup():
 # @app.route('/example')
 # def ren_ex():
 #     return render_template('example.html')
-
-
-@app.route('/user')
-def user():
-    if "user" in session:
-        user = session["user"]
-        print("session name"+user)
-        
-
-
 
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5000, debug=True)

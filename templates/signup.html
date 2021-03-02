@@ -101,11 +101,11 @@
                 data: {name_give: name, id_give: idCheck, pass_give: pass},
                 success: function (response) {
                     let returnCheck = response['check']
-                    if(returnCheck == 1){
+                    if (returnCheck == 1) {
                         alert("이미 존재하는 아이디 입니다")
-                    }else if(returnCheck == 2) {
+                    } else if (returnCheck == 2) {
                         alert("계정 생성!")
-                        location.href="/login";
+                        location.href = "/login";
                     }
                 }
             })
