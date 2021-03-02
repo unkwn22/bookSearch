@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, request, session
+from flask import Flask, render_template, jsonify, request
 
 app = Flask(__name__)
 
@@ -8,7 +8,6 @@ import bcrypt
 
 client = MongoClient('localhost', 27017)
 db = client.accountdata
-
 
 # doc = {'id': 'lsjc12911', 'pass': 'lsjc12911'}
 # db.users.insert_one(doc)
@@ -22,7 +21,7 @@ def main_page():
 @app.route('/login', methods=['POST'])
 def login():
     id_receive = request.form['id_give']
-    pass_receive = request.form['pass_give']
+    pass_receive = request.form['pass_give'].encode('utf-8')
     existing_user = user = db.users.find_one({'id': id_receive})
 
     if existing_user is not None:
@@ -53,22 +52,15 @@ def signup():
 
         name_receive = request.form['name_give']
         id_receive = request.form['id_give']
-        pass_receive = request.form['pass_give']
-        existing_user = user = db.users.find_one({'id': id_receive})
+        pass_receive = request.form['pass_give'].encode('utf-8')
+        existing_user = db.users.find_one({'id': id_receive})
 
         if existing_user is not None:
             return jsonify({'check': 1})
         else:
-            doc = {'name': name_receive,'id': id_receive, 'pass': pass_receive}
+            doc = {'name': name_receive, 'id': id_receive, 'pass': pass_receive}
             db.users.insert_one(doc)
             return jsonify({'check': 2})
-
-
-
-
-
-
-
 
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5000, debug=True)
