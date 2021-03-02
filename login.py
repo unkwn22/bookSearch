@@ -9,10 +9,8 @@ import bcrypt
 client = MongoClient('localhost', 27017)
 db = client.accountdata
 
-# doc = {'id': 'lsjc12911', 'pass': 'lsjc12911'}
-# db.users.insert_one(doc)
 
-## HTML 화면 보여주기
+# HTML 화면 보여주기
 @app.route('/login')
 def main_page():
     return render_template('login.html')
@@ -36,11 +34,6 @@ def login():
         return jsonify({'check': 2})
 
 
-# @app.route('/signup')
-# def signup():
-#     return render_template('signup.html')
-
-
 @app.route('/signup')
 def renSignup():
     return render_template('signup.html')
@@ -61,6 +54,7 @@ def signup():
             doc = {'name': name_receive, 'id': id_receive, 'pass': pass_receive}
             db.users.insert_one(doc)
             return jsonify({'check': 2})
+
 
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5000, debug=True)
