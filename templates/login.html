@@ -64,8 +64,10 @@
         function loginCheck(){
             let idCheck = $('#username').val();
             let passCheck = $('#pass').val();
-
-            $.ajax({
+            if(idCheck == ""){
+                alert("아이디를 입력해주세요")
+            }else{
+                 $.ajax({
                 type: "POST",
                 url: "/login",
                 data: {id_give: idCheck, pass_give: passCheck},
@@ -81,6 +83,7 @@
                 }
             })
             }
+        }
     </script>
 </head>
 
@@ -97,8 +100,10 @@
         </div>
         <div class="container">
             <div class="center">
-                <button type="submit" class="btn btn-primary" id="login" onclick="loginCheck()">로그인</button>
-                <button type="submit" class="btn btn-primary" id="signup" onclick="location.href='signup.html'">회원 가입</button>
+                <button type="submit" class="btn btn-primary" onclick="loginCheck()">로그인</button>
+<!--                <a href ="/signup">-->
+                    <button type="submit" class="btn btn-primary" onclick="location.href='/signup'">회원 가입</button>
+<!--                </a>-->
             </div>
         </div>
     </div>
