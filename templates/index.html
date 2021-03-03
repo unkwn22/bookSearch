@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <title>{{user_info.username}}의 책 다나와</title>
+    <title>{{ user_info.username }}의 책 다나와</title>
 
     <!--    폰트   -->
     <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!--    FontAwesome -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
@@ -26,19 +29,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
 
     <style>
-        .wrap {
-            width: 1200px;
-            margin: auto;
-        }
-
-        .hero-body {
-            border: 2px solid black;
-        }
-
-        .center {
-            text-align: center;
-        }
-
         .form-select {
             width: 100px;
             height: 50px;
@@ -62,6 +52,11 @@
             font-size: 2.0em;
         }
 
+        .wrap-top {
+            width: 1300px;
+            margin: auto;
+        }
+
         .top {
             display: flex;
             justify-content: center;
@@ -73,6 +68,43 @@
         .myPage {
             margin: auto;
 
+        }
+
+        .wrap {
+            width: 1300px;
+            {#background-color: #343a40;#}
+            height: 100%;
+            padding-bottom: 50px;
+            margin: auto;
+        }
+
+        .banner {
+            width: 100%;
+            height: 200px;
+
+            background-color: white;
+            background-image: url('{{ url_for("static", filename="img.png") }}');
+
+            background-position: center;
+            background-size: contain;
+            background-repeat: no-repeat;
+
+            cursor: pointer;
+        }
+
+
+        .card {
+            border: black solid 1px;
+        }
+
+        .banner-myPage {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #btn-username {
+            margin-right: 5px;
         }
 
     </style>
@@ -120,7 +152,7 @@
 
             {#사용자가 검색창에 아무것도 입력하지 않았을 때#}
             if (search_value == "") {
-                alert("값을 입력해주세요!!!")
+                alert("제목을 입력해주세요!!!")
                 return
             }
 
@@ -198,30 +230,49 @@
                 });
             }
         }
+
         function sign_out() {
             $.removeCookie('mytoken', {path: '/'})
             window.location.href = "/login"
         }
 
-        function display(){
+        function display() {
 
         }
     </script>
 </head>
 <body>
+{#<div class="wrap-top">#}
+{#    <div class="myPage">#}
+{#        {% if status %}#}
+{#            {{ user_info.username }}#}
+{#        {% endif %}#}
+{#        <button type="button" onclick="sign_out()" class="btn btn-secondary btn-lg">로그아웃</button>#}
+{#    </div>#}
+{#</div>#}
+<nav class="navbar navbar-dark bg-dark wrap-top">
+    <a class="navbar-brand" href="#">(주) 책 다나와</a>
+
+    <ul class="nav justify-content-end">
+        <li class="nav-item">
+            {% if status %}
+                <button id="btn-username" type="button" class="btn btn-light">{{ user_info.username }} 님 접속하셨습니다.</button>
+            {% endif %}
+        </li>
+        <li class="nav-item">
+            <button type="button" class="btn btn-light" onclick="sign_out()">로그아웃</button>
+        </li>
+    </ul>
+
+
+</nav>
+
 <div class="wrap">
-    <section class="hero is-warning">
-        <div class="hero-body">
-            <div class="container center">
-                <h1 class="title">
-                    책 다나와
-                </h1>
-                <h2 class="subtitle">
-                    원하는 책을 검색해봅시다.
-                </h2>
-            </div>
+    <div class="banner-myPage">
+        <div class="banner" onclick="window.location.href = '/'">
         </div>
-    </section>
+    </div>
+
 
     <header class="top">
         <select id="book-category" class="form-select" aria-label="Default select example">
@@ -230,15 +281,12 @@
                 <option value="{{ loop.index }} ">{{ category }}</option>
             {% endfor %}
         </select>
+
         <input id="book-title" class="form-control form-control-lg" type="text" placeholder="책 제목"
                aria-label=".form-control-lg example">
-        <button id="search-form" type="button" class="btn btn-secondary btn-lg" onclick="search()">검색</button>
-        <div class="myPage" >
-            {% if status %}
-                {{user_info.username}}
-            {% endif %}
-            <button type="button" onclick="sign_out()" class="btn btn-secondary btn-lg">로그아웃</button>
-        </div>
+        <button id="search-form" type="button" class="btn btn-secondary btn-lg" onclick="search()">
+            <i class="fa fa-search" aria-hidden="true"></i>
+        </button>
     </header>
     <div class="card-columns" id="cards-box">
     </div>

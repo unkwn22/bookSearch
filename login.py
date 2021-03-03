@@ -30,7 +30,7 @@ client = MongoClient('localhost', 27017)
 
 
 ############################loginToken#####################################
-db = client.accountdata
+db = client.dbsparta
 SECRET_KEY = 'book'
 
 books = list(db.book.find({},{'_id' : False}))
