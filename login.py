@@ -15,6 +15,12 @@ from flask import Flask, render_template, jsonify, request, session, redirect, u
 from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
 
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+import json
+from collections import OrderedDict
+
 app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.config['UPLOAD_FOLDER'] = "./static/profile_pics"
@@ -24,8 +30,15 @@ client = MongoClient('localhost', 27017)
 
 
 ############################loginToken#####################################
-db = client.sweeter
+db = client.accountdata
 SECRET_KEY = 'SPARTA'
+
+books = list(db.book.find({},{'_id' : False}))
+my_list = []
+for book in books:
+    b_category = book['category']
+    if b_category not in my_list:
+        my_list.append(b_category)
 @app.route('/')
 def home():
     token_receive = request.cookies.get('mytoken')
@@ -56,7 +69,7 @@ def user(username):
         status = (username == payload["id"])  # 내 프로필이면 True, 다른 사람 프로필 페이지면 False
 
         user_info = db.users.find_one({"username": username}, {"_id": False})
-        return render_template('example.html', user_info=user_info, status=status)
+        return render_template('index.html', user_info=user_info, status=status, books=books, my_list=my_list)
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
         return redirect(url_for("home"))
 
@@ -114,7 +127,53 @@ def check_dup():
 
 #################################################################
 
+##############################booksearchapi###################################
+# book의 정보들을 뿌려주는 API
+@app.route('/api/books', methods=['GET'])
+def show_books():
+    books_data = list(db.book.find({}, {'_id':False}))
+    return jsonify({'books_data': books_data})
 
+
+# 검색하기(POST) API
+@app.route('/api/search_book', methods=['POST'])
+def search_book():
+    bookCategory_receive = request.form['bookCategory']
+    searchValue_receive = request.form['searchValue']
+
+    category = my_list[int(bookCategory_receive) - 1]
+    print(category)
+
+    df = pd.DataFrame(list(db.book.find({'category':category},{'_id':False})))
+    img_list = []
+    title_list = []
+    url_list = []
+    collect_book = OrderedDict()
+
+    img_list = df[df['title'].str.contains(searchValue_receive)]['img']
+    title_list = df[df['title'].str.contains(searchValue_receive)]['title']
+    url_list = df[df['title'].str.contains(searchValue_receive)]['url']
+
+    # collect_book = OrderedDict()
+    # c_book = []
+    # for flag in b_list:  # 0- len(df)까지
+    #     if flag:
+    #         for i in range(0,len(df)):
+    #             collect_book.append({ 'img' : df['img'][i],
+    #                               'title' : df['title'][i],
+    #                               'url' : df['url'][i]})
+    #
+    collect_book = {
+                    'img_list' : img_list,
+                    'title_list' : title_list,
+                    'url_list' : url_list
+                    }
+    # print(collect_book['img_list'][1])
+    # print(df['title'])
+
+    # db.orders.insert_one(doc)
+    return jsonify({'msg': ' 저장 '})
+#################################################################
 
 ############################loginSession#####################################
 # db = client.accountdata

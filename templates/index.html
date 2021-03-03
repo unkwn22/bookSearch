@@ -141,7 +141,6 @@
         </div>
     </section>
 
-
     <header class="top">
         <select id="book-category" class="form-select" aria-label="Default select example">
             <option selected>카테고리</option>
@@ -149,20 +148,13 @@
             <option value="{{ loop.index }} ">{{ category }}</option>
             {% endfor %}
         </select>
-
         <input id="book-title" class="form-control form-control-lg" type="text" placeholder="책 제목"
                aria-label=".form-control-lg example">
-
         <button id="search-form" type="button" class="btn btn-secondary btn-lg loginButton" onclick="search()">검색</button>
         <button type="button" class="btn btn-secondary btn-lg loginButton">LOGIN</button>
-
     </header>
-
         <div class="card-columns" id="cards-box">
-
         </div>
 </div>
-
-
 </body>
 </html>
