@@ -87,7 +87,7 @@
                         let url = books[i]['url']
                         // let category = books[i]['category']
 
-                    let tmp_html = `<div class="card">
+                        let tmp_html = `<div class="card">
                                         <img class="card-img-top"
                                              src="${img}"
                                              alt="Card image cap">
@@ -97,32 +97,105 @@
                                         </div>
                                     </div>`
 
-                    $('#cards-box').append(tmp_html)
+                        $('#cards-box').append(tmp_html)
+                    }
                 }
-            }
-        });
-    }
+            });
+        }
 
-    function search() {
-            {#$('#cards-box').empty()#}
+        function search() {
             let book_category = $("#book-category option:selected").val()
             let search_value = $('#book-title').val()
 
-            // 주문하기 API 연결
-            $.ajax({
-                type: "POST",
-                url: "/api/search_book",
-                data:
-                    {
-                        bookCategory: book_category,
-                        searchValue: search_value
-                    },
-                success: function (response) { // 성공하면
-                    {#let c_book = response['collect_book']#}
-                    {#console.log(c_book.length)#}
-                }
-            })
+            console.log(book_category)
+
+            {#사용자가 검색창에 아무것도 입력하지 않았을 때#}
+            if (search_value == "") {
+                alert("값을 입력해주세요!!!")
+                return
+            }
+
+            // 검색하기 API 연결
+            if (book_category == '카테고리') {
+                $.ajax({
+                    type: "POST",
+                    url: "/api/search_book",
+                    data:
+                        {
+                            searchValue: search_value
+                        },
+                    success: function (response) { // 성공하면
+                        let books = response['book_data']
+                        let searchValue = response['searchValue_receive']
+                        $('#cards-box').empty()
+
+                        {#밑에 부분은 조금 더 수정가능할거같음!#}
+                        for (let i = 0; i < books.length; i++) {
+                            if (!books[i]['title'].indexOf(searchValue)) {
+                                let img = books[i]['img']
+                                let title = books[i]['title']
+                                let url = books[i]['url']
+
+                                let tmp_html = `<div class="card">
+                                        <img class="card-img-top"
+                                             src="${img}"
+                                             alt="Card image cap">
+                                        <div class="card-body">
+                                            <p class="card-text">${title}</p>
+                                            <button type="button" onclick="location.href='${url}' ">책 구매</button>
+                                        </div>
+                                    </div>`
+
+                                $('#cards-box').append(tmp_html)
+                            }
+
+                        }
+
+                    }
+                });
+            } else {
+                $.ajax({
+                    type: "POST",
+                    url: "/api/search_book/category",
+                    data:
+                        {
+                            bookCategory: book_category,
+                            searchValue: search_value
+                        },
+                    success: function (response) { // 성공하면
+                        let books = response['book_data']
+                        let searchValue = response['searchValue_receive']
+                        $('#cards-box').empty()
+                        {#밑에 부분은 조금 더 수정가능할거같음!#}
+                        for (let i = 0; i < books.length; i++) {
+                            if (!books[i]['title'].indexOf(searchValue)) {
+                                let img = books[i]['img']
+                                let title = books[i]['title']
+                                let url = books[i]['url']
+
+                                let tmp_html = `<div class="card">
+                                        <img class="card-img-top"
+                                             src="${img}"
+                                             alt="Card image cap">
+                                        <div class="card-body">
+                                            <p class="card-text">${title}</p>
+                                            <button type="button" onclick="location.href='${url}' ">책 구매</button>
+                                        </div>
+                                    </div>`
+
+                                $('#cards-box').append(tmp_html)
+                            }
+
+                        }
+
+                    }
+
+                });
+            }
+
         }
+
+
     </script>
 </head>
 <body>
@@ -146,21 +219,22 @@
         <select id="book-category" class="form-select" aria-label="Default select example">
             <option selected>카테고리</option>
             {% for category in my_list %}
-            <option value="{{ loop.index }} ">{{ category }}</option>
+                <option value="{{ loop.index }} ">{{ category }}</option>
             {% endfor %}
         </select>
 
         <input id="book-title" class="form-control form-control-lg" type="text" placeholder="책 제목"
                aria-label=".form-control-lg example">
 
-        <button id="search-form" type="button" class="btn btn-secondary btn-lg loginButton" onclick="search()">검색</button>
+        <button id="search-form" type="button" class="btn btn-secondary btn-lg loginButton" onclick="search()">검색
+        </button>
         <button type="button" class="btn btn-secondary btn-lg loginButton">LOGIN</button>
 
     </header>
 
-        <div class="card-columns" id="cards-box">
+    <div class="card-columns" id="cards-box">
 
-        </div>
+    </div>
 </div>
 
 
