@@ -1,26 +1,21 @@
-<!doctype html>
-<html lang="ko">
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <!-- Required meta tags -->
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <!-- Bulma CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+    <!-- Font Awesome CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
-            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-            crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
-            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-            crossorigin="anonymous"></script>
-
-    <title>로그인 페이지</title>
+    <!-- JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+    <title>LOGIN</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
 
@@ -29,85 +24,96 @@
             font-family: 'Jua', sans-serif;
         }
 
-        .container {
-            height: 60px;
-            position: relative;
-        }
-
-        .center {
-            margin: 0;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            -ms-transform: translate(-50%, -50%);
-            transform: translate(-50%, -50%);
-        }
-
-        .wrap {
+        .section {
+            padding: 1rem 1.5rem;
+            max-width: 750px;
             margin: auto;
-            width: 900px;
         }
-
-        .login-box {
-            margin: 100px auto 30px auto;
-            width: 500px;
-
-            border: 5px solid black;
-            border-radius: 5px;
-
-            padding: 50px;
-        }
-
     </style>
 
     <script>
-        function loginCheck(){
-            let idCheck = $('#username').val();
-            let passCheck = $('#pass').val();
-            if(idCheck == ""){
-                alert("아이디를 입력해주세요")
-            }else{
-                 $.ajax({
-                type: "POST",
-                url: "/login",
-                data: {id_give: idCheck, pass_give: passCheck},
-                success: function (response) {
-                    let check = response['check']
+        //로그인 함수
+        // {% if msg %}
+        //     alert("{{ msg }}")
+        // {% endif %}
+        function sign_in() {
+            let username = $("#input-username").val()
+            let password = $("#input-password").val()
 
-                    if(check == 2){
-                        alert("없는 아이디 입니다")
-                    }else if(check == 3){
-                        alert("비밀번호가 틀렸습니다")
-                    }else if(check == 1){
-                        alert("로그인 성공!")
+            if (username == "") {
+                $("#help-id-login").text("아이디를 입력해주세요.")
+                $("#input-username").focus()
+                return;
+            } else {
+                $("#help-id-login").text("")
+            }
+
+            if (password == "") {
+                $("#help-password-login").text("비밀번호를 입력해주세요.")
+                $("#input-password").focus()
+                return;
+            } else {
+                $("#help-password-login").text("")
+            }
+            $.ajax({
+                type: "POST",
+                url: "/sign_in",
+                data: {
+                    username_give: username,
+                    password_give: password
+                },
+                success: function (response) {
+                    if (response['result'] == 'success') {
+                        $.cookie('mytoken', response['token'], {path: '/'});
+                        window.location.replace("/")
+                    } else {
+                        alert(response['msg'])
                     }
                 }
-            })
-            }
+            });
         }
     </script>
 </head>
-
 <body>
-<div class="wrap">
-    <div class="login-box">
-        <div class="form-group">
-            <label>아이디</label>
-            <input type="text" class="form-control" placeholder="아이디 입력" name="username" id="username">
-        </div>
-        <div class="form-group">
-            <label>비밀번호</label>
-            <input type="password" class="form-control" placeholder="비밀버호 입력" name="pass" id="pass">
-        </div>
-        <div class="container">
-            <div class="center">
-                <button type="submit" class="btn btn-primary" onclick="loginCheck()">로그인</button>
-<!--                <a href ="/signup">-->
-                    <button type="submit" class="btn btn-primary" onclick="location.href='/signup'">회원 가입</button>
-<!--                </a>-->
-            </div>
+<section class="section">
+    <div class="container">
+        <div class="box" style="max-width: 480px;margin:auto">
+            <article class="media">
+                <div class="media-content">
+                    <div class="content">
+                        <div class="field has-addons">
+                            <div class="control has-icons-left" style="width:100%">
+                                <input id="input-username" class="input" type="text" placeholder="아이디">
+                                <span class="icon is-small is-left"><i class="fa fa-user"></i></span>
+                            </div>
+                        </div>
+                        <p id="help-id-login" class="help is-danger"> </p>
+                        <div class="field">
+                            <div class="control has-icons-left">
+                                <input id="input-password" class="input" type="password" placeholder="비밀번호">
+                                <span class="icon is-small is-left"><i class="fa fa-lock"></i></span>
+                            </div>
+                        <p id="help-password-login" class="help is-danger"> </p>
+                        </div>
+                    </div>
+                    <div id="div-sign-in-or-up" class="has-text-centered">
+                        <nav class="level is-mobile">
+                            <button class="level-item button " onclick="sign_in()">
+                                로그인
+                            </button>
+                        </nav>
+                        <hr>
+                        <h4 class="mb-3">아직 회원이 아니라면</h4>
+                        <nav class="level is-mobile">
+                            <button class="level-item button" onclick="location.href='/signup'">
+                                회원가입하기
+                            </button>
+                        </nav>
+                    </div>
+                </div>
+            </article>
         </div>
     </div>
-</div>
+</section>
 </body>
 </html>

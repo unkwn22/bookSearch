@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+    <title>{{user_info.username}}의 책 다나와</title>
+
     <!--    폰트   -->
     <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
     <!-- Required meta tags -->
@@ -20,7 +22,8 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
             integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
             crossorigin="anonymous"></script>
-    <title>책 다나와</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
 
     <style>
         .wrap {
@@ -67,9 +70,16 @@
             margin-bottom: 30px;
         }
 
+        .myPage {
+            margin: auto;
+
+        }
+
 
     </style>
+
     <script>
+
         $(document).ready(function () {
             showBook();
         });
@@ -150,7 +160,6 @@
                             }
 
                         }
-
                     }
                 });
             } else {
@@ -185,21 +194,22 @@
 
                                 $('#cards-box').append(tmp_html)
                             }
-
                         }
-
                     }
-
                 });
             }
-
+        }
+        function sign_out() {
+            $.removeCookie('mytoken', {path: '/'})
+            window.location.href = "/login"
         }
 
+        function display(){
 
+        }
     </script>
 </head>
 <body>
-
 <div class="wrap">
     <section class="hero is-warning">
         <div class="hero-body">
@@ -214,7 +224,6 @@
         </div>
     </section>
 
-
     <header class="top">
         <select id="book-category" class="form-select" aria-label="Default select example">
             <option selected>카테고리</option>
@@ -222,21 +231,20 @@
                 <option value="{{ loop.index }} ">{{ category }}</option>
             {% endfor %}
         </select>
-
         <input id="book-title" class="form-control form-control-lg" type="text" placeholder="책 제목"
                aria-label=".form-control-lg example">
-
-        <button id="search-form" type="button" class="btn btn-secondary btn-lg loginButton" onclick="search()">검색
-        </button>
-        <button type="button" class="btn btn-secondary btn-lg loginButton">LOGIN</button>
-
+        <button id="search-form" type="button" class="btn btn-secondary btn-lg" onclick="search()">검색</button>
+        <div class="myPage" >
+            {% if status %}
+                {{user_info.username}}
+            {% endif %}
+            <button type="button" onclick="sign_out()" class="btn btn-secondary btn-lg">로그아웃</button>
+        </div>
     </header>
-
     <div class="card-columns" id="cards-box">
-
+    </div>
+    <div class="card-columns" id="cards-box">
     </div>
 </div>
-
-
 </body>
 </html>
