@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <!--    폰트   -->
+    <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
+    <title>책 다나와</title>
+
+    <style>
+        .wrap {
+            width: 1200px;
+            margin: auto;
+        }
+
+        .hero-body {
+            border: 2px solid black;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .form-select {
+            width: 100px;
+            height: 50px;
+        }
+
+        .form-control-lg {
+            width: 700px;
+            height: 50px;
+        }
+
+        input::placeholder {
+
+            font-size: 1.6em;
+            font-style: italic;
+        }
+
+        .loginButton {
+            width: 200px;
+            height: 50px;
+            margin-left: 30px;
+            font-size: 2.0em;
+        }
+
+        .top {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            margin-bottom: 30px;
+        }
+
+
+    </style>
+    <script>
+        $(document).ready(function () {
+            showBook();
+        });
+
+        function showBook() {
+            $.ajax({
+                type: 'GET',
+                url: '/api/books',
+                data: {},
+                success: function (response) {
+                    let books = response['books_data']
+                    for (let i = 0; i < books.length; i++) {
+                        let img = books[i]['img']
+                        let title = books[i]['title']
+                        let url = books[i]['url']
+                        // let category = books[i]['category']
+
+                    let tmp_html = `<div class="card">
+                                        <img class="card-img-top"
+                                             src="${img}"
+                                             alt="Card image cap">
+                                        <div class="card-body">
+                                            <p class="card-text">${title}</p>
+                                            <button type="button" onclick="location.href='${url}' ">책 구매</button>
+                                        </div>
+                                    </div>`
+
+                    $('#cards-box').append(tmp_html)
+                }
+            }
+        });
+    }
+
+    function search() {
+            {#$('#cards-box').empty()#}
+            let book_category = $("#book-category option:selected").val()
+            let search_value = $('#book-title').val()
+
+            // 주문하기 API 연결
+            $.ajax({
+                type: "POST",
+                url: "/api/search_book",
+                data:
+                    {
+                        bookCategory: book_category,
+                        searchValue: search_value
+                    },
+                success: function (response) { // 성공하면
+                    {#let c_book = response['collect_book']#}
+                    {#console.log(c_book.length)#}
+                }
+            })
+        }
+    </script>
+</head>
+<body>
+
+<div class="wrap">
+    <section class="hero is-warning">
+        <div class="hero-body">
+            <div class="container center">
+                <h1 class="title">
+                    책 다나와
+                </h1>
+                <h2 class="subtitle">
+                    원하는 책을 검색해봅시다.
+                </h2>
+            </div>
+        </div>
+    </section>
+
+
+    <header class="top">
+        <select id="book-category" class="form-select" aria-label="Default select example">
+            <option selected>카테고리</option>
+            {% for category in my_list %}
+            <option value="{{ loop.index }} ">{{ category }}</option>
+            {% endfor %}
+        </select>
+
+        <input id="book-title" class="form-control form-control-lg" type="text" placeholder="책 제목"
+               aria-label=".form-control-lg example">
+
+        <button id="search-form" type="button" class="btn btn-secondary btn-lg loginButton" onclick="search()">검색</button>
+        <button type="button" class="btn btn-secondary btn-lg loginButton">LOGIN</button>
+
+    </header>
+
+        <div class="card-columns" id="cards-box">
+
+        </div>
+</div>
+
+
+</body>
+</html>
