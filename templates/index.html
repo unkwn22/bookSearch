@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+    <title>{{user_info.username}}의 책 다나와</title>
+
     <!--    폰트   -->
     <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
     <!-- Required meta tags -->
@@ -20,7 +22,8 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
             integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
             crossorigin="anonymous"></script>
-    <title>책 다나와</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
 
     <style>
         .wrap {
@@ -67,9 +70,16 @@
             margin-bottom: 30px;
         }
 
+        .myPage {
+            margin: auto;
+
+        }
+
 
     </style>
+
     <script>
+
         $(document).ready(function () {
             showBook();
         });
@@ -87,7 +97,7 @@
                         let url = books[i]['url']
                         // let category = books[i]['category']
 
-                    let tmp_html = `<div class="card">
+                        let tmp_html = `<div class="card">
                                         <img class="card-img-top"
                                              src="${img}"
                                              alt="Card image cap">
@@ -97,36 +107,109 @@
                                         </div>
                                     </div>`
 
-                    $('#cards-box').append(tmp_html)
+                        $('#cards-box').append(tmp_html)
+                    }
                 }
-            }
-        });
-    }
+            });
+        }
 
-    function search() {
-            {#$('#cards-box').empty()#}
+        function search() {
             let book_category = $("#book-category option:selected").val()
             let search_value = $('#book-title').val()
 
-            // 주문하기 API 연결
-            $.ajax({
-                type: "POST",
-                url: "/api/search_book",
-                data:
-                    {
-                        bookCategory: book_category,
-                        searchValue: search_value
-                    },
-                success: function (response) { // 성공하면
-                    {#let c_book = response['collect_book']#}
-                    {#console.log(c_book.length)#}
-                }
-            })
+            console.log(book_category)
+
+            {#사용자가 검색창에 아무것도 입력하지 않았을 때#}
+            if (search_value == "") {
+                alert("값을 입력해주세요!!!")
+                return
+            }
+
+            // 검색하기 API 연결
+            if (book_category == '카테고리') {
+                $.ajax({
+                    type: "POST",
+                    url: "/api/search_book",
+                    data:
+                        {
+                            searchValue: search_value
+                        },
+                    success: function (response) { // 성공하면
+                        let books = response['book_data']
+                        let searchValue = response['searchValue_receive']
+                        $('#cards-box').empty()
+
+                        {#밑에 부분은 조금 더 수정가능할거같음!#}
+                        for (let i = 0; i < books.length; i++) {
+                            if (!books[i]['title'].indexOf(searchValue)) {
+                                let img = books[i]['img']
+                                let title = books[i]['title']
+                                let url = books[i]['url']
+
+                                let tmp_html = `<div class="card">
+                                        <img class="card-img-top"
+                                             src="${img}"
+                                             alt="Card image cap">
+                                        <div class="card-body">
+                                            <p class="card-text">${title}</p>
+                                            <button type="button" onclick="location.href='${url}' ">책 구매</button>
+                                        </div>
+                                    </div>`
+
+                                $('#cards-box').append(tmp_html)
+                            }
+
+                        }
+                    }
+                });
+            } else {
+                $.ajax({
+                    type: "POST",
+                    url: "/api/search_book/category",
+                    data:
+                        {
+                            bookCategory: book_category,
+                            searchValue: search_value
+                        },
+                    success: function (response) { // 성공하면
+                        let books = response['book_data']
+                        let searchValue = response['searchValue_receive']
+                        $('#cards-box').empty()
+                        {#밑에 부분은 조금 더 수정가능할거같음!#}
+                        for (let i = 0; i < books.length; i++) {
+                            if (!books[i]['title'].indexOf(searchValue)) {
+                                let img = books[i]['img']
+                                let title = books[i]['title']
+                                let url = books[i]['url']
+
+                                let tmp_html = `<div class="card">
+                                        <img class="card-img-top"
+                                             src="${img}"
+                                             alt="Card image cap">
+                                        <div class="card-body">
+                                            <p class="card-text">${title}</p>
+                                            <button type="button" onclick="location.href='${url}' ">책 구매</button>
+                                        </div>
+                                    </div>`
+
+                                $('#cards-box').append(tmp_html)
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        function sign_out() {
+            $.removeCookie('mytoken', {path: '/'})
+            window.location.href = "/login"
+        }
+
+        function display(){
+
         }
     </script>
 </head>
 <body>
-
 <div class="wrap">
     <section class="hero is-warning">
         <div class="hero-body">
@@ -145,16 +228,23 @@
         <select id="book-category" class="form-select" aria-label="Default select example">
             <option selected>카테고리</option>
             {% for category in my_list %}
-            <option value="{{ loop.index }} ">{{ category }}</option>
+                <option value="{{ loop.index }} ">{{ category }}</option>
             {% endfor %}
         </select>
         <input id="book-title" class="form-control form-control-lg" type="text" placeholder="책 제목"
                aria-label=".form-control-lg example">
-        <button id="search-form" type="button" class="btn btn-secondary btn-lg loginButton" onclick="search()">검색</button>
-        <button type="button" class="btn btn-secondary btn-lg loginButton">LOGIN</button>
-    </header>
-        <div class="card-columns" id="cards-box">
+        <button id="search-form" type="button" class="btn btn-secondary btn-lg" onclick="search()">검색</button>
+        <div class="myPage" >
+            {% if status %}
+                {{user_info.username}}
+            {% endif %}
+            <button type="button" onclick="sign_out()" class="btn btn-secondary btn-lg">로그아웃</button>
         </div>
+    </header>
+    <div class="card-columns" id="cards-box">
+    </div>
+    <div class="card-columns" id="cards-box">
+    </div>
 </div>
 </body>
 </html>

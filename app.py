@@ -30,44 +30,33 @@ def show_books():
     return jsonify({'books_data': books_data})
 
 
-# 검색하기(POST) API
-@app.route('/api/search_book', methods=['POST'])
-def search_book():
+# 검색하기(POST)-카테고리가 있을 때 API
+@app.route('/api/search_book/category', methods=['POST'])
+def search_book_with_category():
     bookCategory_receive = request.form['bookCategory']
     searchValue_receive = request.form['searchValue']
 
     category = my_list[int(bookCategory_receive) - 1]
     print(category)
 
-    df = pd.DataFrame(list(db.book.find({'category':category},{'_id':False})))
-    img_list = []
-    title_list = []
-    url_list = []
-    collect_book = OrderedDict()
+    book_data = list(db.book.find({'category': category}, {'_id': False}))
+    print(book_data)
 
-    img_list = df[df['title'].str.contains(searchValue_receive)]['img']
-    title_list = df[df['title'].str.contains(searchValue_receive)]['title']
-    url_list = df[df['title'].str.contains(searchValue_receive)]['url']
 
-    # collect_book = OrderedDict()
-    # c_book = []
-    # for flag in b_list:  # 0- len(df)까지
-    #     if flag:
-    #         for i in range(0,len(df)):
-    #             collect_book.append({ 'img' : df['img'][i],
-    #                               'title' : df['title'][i],
-    #                               'url' : df['url'][i]})
-    #
-    collect_book = {
-                    'img_list' : img_list,
-                    'title_list' : title_list,
-                    'url_list' : url_list
-                    }
-    # print(collect_book['img_list'][1])
-    # print(df['title'])
+    return jsonify({'msg': ' 저장 ','book_data':book_data,'searchValue_receive':searchValue_receive})
 
-    # db.orders.insert_one(doc)
-    return jsonify({'msg': ' 저장 '})
+
+# 검색하기(POST)-카테고리가 없을 때 API
+@app.route('/api/search_book', methods=['POST'])
+def search_book():
+    searchValue_receive = request.form['searchValue']
+
+    book_data = list(db.book.find({}, {'_id': False}))
+    print(book_data)
+
+
+    return jsonify({'msg': ' 저장 ','book_data':book_data,'searchValue_receive':searchValue_receive})
+
 
 
 if __name__ == '__main__':

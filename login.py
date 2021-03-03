@@ -31,7 +31,7 @@ client = MongoClient('localhost', 27017)
 
 ############################loginToken#####################################
 db = client.accountdata
-SECRET_KEY = 'SPARTA'
+SECRET_KEY = 'book'
 
 books = list(db.book.find({},{'_id' : False}))
 my_list = []
@@ -46,7 +46,6 @@ def home():
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         # user_info = db.users.find_one({"username": payload["id"]})
         username = payload["id"]
-        print(username)
         return redirect(url_for("user", username=username))
     except jwt.ExpiredSignatureError:
         return redirect(url_for("login", msg="로그인 시간이 만료되었습니다."))
@@ -56,8 +55,14 @@ def home():
 
 @app.route('/login')
 def login():
-    msg = request.args.get("msg")
-    return render_template('login.html', msg=msg)
+    token_receive = request.cookies.get('mytoken')
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        # user_info = db.users.find_one({"username": payload["id"]})
+        username = payload["id"]
+        return redirect(url_for("user", username=username))
+    except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
+        return render_template('login.html')
 
 
 @app.route('/user/<username>')
@@ -89,9 +94,9 @@ def sign_in():
             #아이디는 누구
             'id': username_receive,
             #머물수 있는 시간
-            'exp': datetime.utcnow() + timedelta(seconds=60 * 60 * 24)  # 로그인 24시간 유지
+            'exp': datetime.utcnow() + timedelta(seconds=300)  # 로그인 2분 유지
         }
-    #            jsonwebtoken.encode(영수증, 세션 암호화, 토큰의 알고리즘) 디코드하는 이유?
+        #            jsonwebtoken.encode(영수증, 세션 암호화, 토큰의 알고리즘) 디코드하는 이유?
         token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
 
         return jsonify({'result': 'success', 'token': token})
@@ -100,8 +105,13 @@ def sign_in():
         return jsonify({'result': 'fail', 'msg': '아이디/비밀번호가 일치하지 않습니다.'})
 
 
-@app.route('/sign_up/save', methods=['POST'])
+@app.route('/signup')
 def sign_up():
+    return render_template('signup.html')
+
+
+@app.route('/sign_up/save', methods=['POST'])
+def sign_up_save():
     username_receive = request.form['username_give']
     password_receive = request.form['password_give']
     password_hash = hashlib.sha256(password_receive.encode('utf-8')).hexdigest()
@@ -125,7 +135,7 @@ def check_dup():
     #ajax response 로 보내질거면 result를 success
     return jsonify({'result': 'success', 'exists': exists})
 
-#################################################################
+##############################################################################
 
 ##############################booksearchapi###################################
 # book의 정보들을 뿌려주는 API
@@ -135,45 +145,39 @@ def show_books():
     return jsonify({'books_data': books_data})
 
 
-# 검색하기(POST) API
-@app.route('/api/search_book', methods=['POST'])
-def search_book():
+# 검색하기(POST)-카테고리가 있을 때 API
+@app.route('/api/search_book/category', methods=['POST'])
+def search_book_with_category():
     bookCategory_receive = request.form['bookCategory']
     searchValue_receive = request.form['searchValue']
 
     category = my_list[int(bookCategory_receive) - 1]
     print(category)
 
-    df = pd.DataFrame(list(db.book.find({'category':category},{'_id':False})))
-    img_list = []
-    title_list = []
-    url_list = []
-    collect_book = OrderedDict()
+    book_data = list(db.book.find({'category': category}, {'_id': False}))
+    print(book_data)
 
-    img_list = df[df['title'].str.contains(searchValue_receive)]['img']
-    title_list = df[df['title'].str.contains(searchValue_receive)]['title']
-    url_list = df[df['title'].str.contains(searchValue_receive)]['url']
 
-    # collect_book = OrderedDict()
-    # c_book = []
-    # for flag in b_list:  # 0- len(df)까지
-    #     if flag:
-    #         for i in range(0,len(df)):
-    #             collect_book.append({ 'img' : df['img'][i],
-    #                               'title' : df['title'][i],
-    #                               'url' : df['url'][i]})
-    #
-    collect_book = {
-                    'img_list' : img_list,
-                    'title_list' : title_list,
-                    'url_list' : url_list
-                    }
-    # print(collect_book['img_list'][1])
-    # print(df['title'])
+    return jsonify({'msg': ' 저장 ','book_data':book_data,'searchValue_receive':searchValue_receive})
 
-    # db.orders.insert_one(doc)
-    return jsonify({'msg': ' 저장 '})
-#################################################################
+
+# 검색하기(POST)-카테고리가 없을 때 API
+@app.route('/api/search_book', methods=['POST'])
+def search_book():
+    searchValue_receive = request.form['searchValue']
+
+    book_data = list(db.book.find({}, {'_id': False}))
+    print(book_data)
+
+
+    return jsonify({'msg': ' 저장 ','book_data':book_data,'searchValue_receive':searchValue_receive})
+#############################################################################
+
+
+
+
+
+
 
 ############################loginSession#####################################
 # db = client.accountdata
@@ -238,10 +242,8 @@ def search_book():
 # @app.route('/signup')
 # def signup():
 #     return render_template('signup.html')
-# #################################################################
 #
 #
-# ############################signup#####################################
 # @app.route('/api/signup', methods=['POST', 'GET'])
 # def api_signup():
 #     if request.method == 'POST':
@@ -260,7 +262,7 @@ def search_book():
 #             doc = {'name': name_receive, 'id': id_receive, 'pass': pw_hash}
 #             db.users.insert_one(doc)
 #             return jsonify({'check': 2})
-#################################################################
+#############################################################################
 
 
 if __name__ == '__main__':
