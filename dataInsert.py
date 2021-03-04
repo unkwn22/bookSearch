@@ -1,11 +1,8 @@
-import json
-from collections import OrderedDict
-
 import requests
 from bs4 import BeautifulSoup
 from pymongo import MongoClient
 
-client = MongoClient('localhost', 27017)
+client = MongoClient('mongodb://test:test@localhost', 27017)
 db = client.accountdata
 
 

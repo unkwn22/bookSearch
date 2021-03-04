@@ -1,6 +1,6 @@
 from pymongo import MongoClient
-import hashlib
-import bcrypt
+
+
 # JWT 패키지를 사용합니다. (설치해야할 패키지 이름: PyJWT)
 import jwt
 
@@ -11,8 +11,8 @@ import datetime
 # 그렇지 않으면, 개발자(=나)가 회원들의 비밀번호를 볼 수 있으니까요.^^;
 import hashlib
 
-from flask import Flask, render_template, jsonify, request, session, redirect, url_for
-from werkzeug.utils import secure_filename
+from flask import Flask, render_template, jsonify, request, redirect, url_for
+
 from datetime import datetime, timedelta
 
 import requests
@@ -22,15 +22,15 @@ import json
 from collections import OrderedDict
 
 app = Flask(__name__)
-app.config["TEMPLATES_AUTO_RELOAD"] = True
-app.config['UPLOAD_FOLDER'] = "./static/profile_pics"
+# app.config["TEMPLATES_AUTO_RELOAD"] = True
+# app.config['UPLOAD_FOLDER'] = "./static/profile_pics"
 
-
-client = MongoClient('localhost', 27017)
+# client = MongoClient('localhost', 27017)
+client = MongoClient('mongodb://test:test@localhost', 27017)
 
 
 ############################loginToken#####################################
-db = client.dbsparta
+db = client.accountdata
 SECRET_KEY = 'book'
 
 books = list(db.book.find({},{'_id' : False}))
@@ -39,6 +39,8 @@ for book in books:
     b_category = book['category']
     if b_category not in my_list:
         my_list.append(b_category)
+
+
 @app.route('/')
 def home():
     token_receive = request.cookies.get('mytoken')
@@ -72,7 +74,6 @@ def user(username):
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         status = (username == payload["id"])  # 내 프로필이면 True, 다른 사람 프로필 페이지면 False
-
         user_info = db.users.find_one({"username": username}, {"_id": False})
         return render_template('index.html', user_info=user_info, status=status, books=books, my_list=my_list)
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
@@ -81,11 +82,13 @@ def user(username):
 
 @app.route('/sign_in', methods=['POST'])
 def sign_in():
+
     # 로그인
     username_receive = request.form['username_give']
     password_receive = request.form['password_give']
 
     pw_hash = hashlib.sha256(password_receive.encode('utf-8')).hexdigest()
+
     result = db.users.find_one({'username': username_receive, 'password': pw_hash})
 
     if result is not None:
@@ -94,10 +97,10 @@ def sign_in():
             #아이디는 누구
             'id': username_receive,
             #머물수 있는 시간
-            'exp': datetime.utcnow() + timedelta(seconds=300)  # 로그인 2분 유지
+            'exp': datetime.utcnow() + timedelta(seconds=60)  # 로그인 2분 유지
         }
         #            jsonwebtoken.encode(영수증, 세션 암호화, 토큰의 알고리즘) 디코드하는 이유?
-        token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
+        token = jwt.encode(payload, SECRET_KEY, algorithm='HS256').decode('utf8')
 
         return jsonify({'result': 'success', 'token': token})
     # 찾지 못하면

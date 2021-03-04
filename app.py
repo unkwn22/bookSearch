@@ -23,6 +23,8 @@ for book in books:
 def home():
     return render_template('index.html', books=books, my_list=my_list)
 
+
+
 # book의 정보들을 뿌려주는 API
 @app.route('/api/books', methods=['GET'])
 def show_books():
