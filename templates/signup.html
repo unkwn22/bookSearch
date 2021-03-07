@@ -36,7 +36,7 @@
         function is_nickname(asValue) {
             //                        일반적인 조건
             //정규 표현식  (소괄호)꼭 이어야함       2자리에서-10자리까지
-            var regExp = /^(?=.*[a-zA-Z])[-a-zA-Z0-9_.]{2,10}$/;
+            var regExp = /^(?=.*[a-zA-Z])[-a-zA-Z0-9_.]{4,10}$/;
             return regExp.test(asValue);
         }
         //               \d는정수
@@ -47,6 +47,8 @@
 
 
         //회원가입
+
+
         function sign_up() {
             let username = $("#input-username").val()
             let password = $("#input-password").val()
@@ -103,49 +105,78 @@
             });
         }
 
+        $(document).ready(function(){
 
-        //중복함수 확인
-        function check_dup() {
-            //입력값 받기
-            let username = $("#input-username").val()
-            console.log(username)
-            //입력값이 없을때
-            if (username == "") {
-                //강제 text삽입
-                $("#help-id").text("아이디를 입력해주세요.").addClass("is-danger")
-                //입력한 겍체 하이라이트
-                $("#input-username").focus()
-                return;
-            }
-            //(is_nickname함수에(받은유저값을보내기) !가 있으니깐 참이 아닐때를 찾는다
-            if (!is_nickname(username)) {
-                //위 내용과 같음                                                                                 조건이 실패이기때문에 세이브 처리를 제거해주고 데인저 클래스를 삽입
-                $("#help-id").text("아이디의 형식을 확인해주세요. 영문과 숫자, 일부 특수문자(._-) 사용 가능. 2-10자 길이").removeClass("is-safe").addClass("is-danger")
-                $("#input-username").focus()
-                return;
-            }
-            //위에 조건이 다 충족된다면
-            $("#help-id").addClass("is-loading")
+            $("#input-username").on("keyup", function() {
 
-            $.ajax({
+                let value = $(this).val().toLowerCase();
+                console.log(value)
+                {#$("#myTable tr").filter(function() {#}
+                {#    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)});#}
+                $.ajax({
                 type: "POST",
                 url: "/sign_up/check_dup",
                 data: {
-                    username_give: username
+                    username_give: value
                 },
                 success: function (response) {
-
                     if (response["exists"]) {
                         $("#help-id").text("이미 존재하는 아이디입니다.").removeClass("is-safe").addClass("is-danger")
                         $("#input-username").focus()
                     } else {
+                        if (!is_nickname(value)) {
+                        //위 내용과 같음                                                                                 조건이 실패이기때문에 세이브 처리를 제거해주고 데인저 클래스를 삽입
+                        $("#help-id").text("아이디의 형식을 확인해주세요. 영문과 숫자, 일부 특수문자(._-) 사용 가능. 4-10자 길이").removeClass("is-safe").addClass("is-danger")
+                        $("#input-username").focus()
+                        return;}
                         //                                                      여기는 서버로부터 허용된 조건이기때문에 만약 이전에 데인저 클래스가 적용됐으면 제거하고 성공 클래스 삽입
                         $("#help-id").text("사용할 수 있는 아이디입니다.").removeClass("is-danger").addClass("is-success")
                     }
                     $("#help-id").removeClass("is-loading")
                 }
             });
-        }
+            });
+        });
+
+        //중복함수 확인
+        {#function check_dup() {#}
+        {#    //입력값 받기#}
+        {#    let username = $("#input-username").val()#}
+        {#    console.log(username)#}
+        {#    //입력값이 없을때#}
+        {#    if (username == "") {#}
+        {#        //강제 text삽입#}
+        {#        $("#help-id").text("아이디를 입력해주세요.").addClass("is-danger")#}
+        {#        //입력한 겍체 하이라이트#}
+        {#        $("#input-username").focus()#}
+        {#        return;#}
+        {#    }#}
+            {#//(is_nickname함수에(받은유저값을보내기) !가 있으니깐 참이 아닐때를 찾는다#}
+        {#    if (!is_nickname(username)) {#}
+        {#        //위 내용과 같음                                                                                 조건이 실패이기때문에 세이브 처리를 제거해주고 데인저 클래스를 삽입#}
+        {#        $("#help-id").text("아이디의 형식을 확인해주세요. 영문과 숫자, 일부 특수문자(._-) 사용 가능. 2-10자 길이").removeClass("is-safe").addClass("is-danger")#}
+        {#        $("#input-username").focus()#}
+        {#        return;}#}
+        {##}
+        {#    //위에 조건이 다 충족된다면#}
+        {#    $("#help-id").addClass("is-loading")#}
+        {##}
+        {#    $.ajax({#}
+        {#        type: "POST",#}
+        {#        url: "/sign_up/check_dup",#}
+        {#        data: {#}
+        {#            username_give: username#}
+        {#        },#}
+        {#        success: function (response) {#}
+        {##}
+        {#            if (response["exists"]) {#}
+        {#                $("#help-id").text("이미 존재하는 아이디입니다.").removeClass("is-safe").addClass("is-danger")#}
+        {#                $("#input-username").focus()#}
+        {#            } else {#}
+        {#                //                                                      여기는 서버로부터 허용된 조건이기때문에 만약 이전에 데인저 클래스가 적용됐으면 제거하고 성공 클래스 삽입#}
+        {#                $("#help-id").text("사용할 수 있는 아이디입니다.").removeClass("is-danger").addClass("is-success")#}
+        {#            }#}
+        {#            $("#help-id").removeClass("is-loading")}});}#}
 
     </script>
 
@@ -162,11 +193,11 @@
                                 <input id="input-username" class="input" type="text" placeholder="아이디">
                                 <span class="icon is-small is-left"><i class="fa fa-user"></i></span>
                             </div>
-                            <div id="btn-check-dup" class="control">
-                                <button class="button" onclick="check_dup()">중복확인</button>
-                            </div>
+{#                            <div id="btn-check-dup" class="control">#}
+{#                                <button class="button" onclick="check_dup()">중복확인</button>#}
+{#                            </div>#}
                         </div>
-                        <p id="help-id" class="help ">아이디는 2-10자의 영문과 숫자와 일부 특수문자(._-)만 입력 가능합니다.</p>                        <p id="help-id-login" class="help is-danger"></p>
+                        <p id="help-id" class="help ">아이디는 4-10자의 영문과 숫자와 일부 특수문자(._-)만 입력 가능합니다.</p>                        <p id="help-id-login" class="help is-danger"></p>
 
                         <div class="field">
                             <div class="control has-icons-left">

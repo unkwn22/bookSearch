@@ -74,6 +74,7 @@ def user(username):
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         status = (username == payload["id"])  # 내 프로필이면 True, 다른 사람 프로필 페이지면 False
+
         user_info = db.users.find_one({"username": username}, {"_id": False})
         return render_template('index.html', user_info=user_info, status=status, books=books, my_list=my_list)
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
@@ -82,13 +83,11 @@ def user(username):
 
 @app.route('/sign_in', methods=['POST'])
 def sign_in():
-
     # 로그인
     username_receive = request.form['username_give']
     password_receive = request.form['password_give']
 
     pw_hash = hashlib.sha256(password_receive.encode('utf-8')).hexdigest()
-
     result = db.users.find_one({'username': username_receive, 'password': pw_hash})
 
     if result is not None:
@@ -97,10 +96,11 @@ def sign_in():
             #아이디는 누구
             'id': username_receive,
             #머물수 있는 시간
-            'exp': datetime.utcnow() + timedelta(seconds=60)  # 로그인 2분 유지
+            'exp': datetime.utcnow() + timedelta(days=1)  # 로그인 2분 유지
         }
         #            jsonwebtoken.encode(영수증, 세션 암호화, 토큰의 알고리즘) 디코드하는 이유?
         token = jwt.encode(payload, SECRET_KEY, algorithm='HS256').decode('utf8')
+        # token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
 
         return jsonify({'result': 'success', 'token': token})
     # 찾지 못하면
@@ -173,6 +173,11 @@ def search_book():
 
 
     return jsonify({'msg': ' 저장 ','book_data':book_data,'searchValue_receive':searchValue_receive})
+
+
+@app.route('/patchnotes')
+def patch_note():
+    return render_template('updatenote.html')
 #############################################################################
 
 

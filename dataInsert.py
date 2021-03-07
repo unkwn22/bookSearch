@@ -45,7 +45,7 @@ def get_img():
     dataHistory = requests.get(
         'https://book.naver.com/bestsell/bestseller_list.nhn?cp=yes24&cate=001001010&bestWeek=2021-02-3&indexCount=9&type=image',
         headers=headers)
-    soup = BeautifulSoup(dataHistory.text, 'html.parser')
+    soup = BeautifulSoup(dataAni.text, 'html.parser')
 
 
     trs = soup.select('#section_bestseller > ol > li')
@@ -59,7 +59,7 @@ def get_img():
                 'img' : book_img,
                 'title' : book_title,
                 'url' : book_url,
-                'category' : '역사와문학'
+                'category' : '애니메이션'
             }
 
             db.book.insert_one(doc)

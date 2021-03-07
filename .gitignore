@@ -1,5 +1,5 @@
 .idea
-static
 venv
 .gitignore.swp
 .gitignore
+app.py
